@@ -1,0 +1,51 @@
+import { DemoFlow } from "./demo-flow";
+
+export const metadata = {
+  title: "ChairFill Demo | HVAC Missed-Call Recovery",
+  description:
+    "See how ChairFill recovers an after-hours HVAC lead and turns a missed call into a booked job.",
+};
+
+export default function DemoPage() {
+  return (
+    <main className="min-h-screen bg-[#f8fafc] text-[#091525]">
+      <header className="border-b border-slate-200 bg-white">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-6 lg:px-8">
+          <a href="/" className="text-xl font-semibold tracking-tight">
+            ChairFill
+          </a>
+          <div className="flex items-center gap-3">
+            <a
+              href="/revenue-calculator"
+              className="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-[#07182f] sm:inline-flex"
+            >
+              Revenue Calculator
+            </a>
+            <a
+              href="/#demo"
+              className="rounded-full bg-[#07182f] px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              See Demo
+            </a>
+          </div>
+        </nav>
+      </header>
+
+      <section className="mx-auto max-w-7xl px-5 py-10 sm:px-6 lg:px-8">
+        <div className="mb-8 max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#0d4f8b]">
+            Interactive demo
+          </p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-[#07182f] sm:text-5xl">
+            See ChairFill Recover an After-Hours HVAC Lead
+          </h1>
+          <p className="mt-4 text-lg leading-8 text-slate-600">
+            Watch how a missed AC emergency call turns into instant follow-up,
+            a qualified service need, and a booked job window.
+          </p>
+        </div>
+        <DemoFlow />
+      </section>
+    </main>
+  );
+}
