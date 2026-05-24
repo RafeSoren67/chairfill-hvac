@@ -34,6 +34,8 @@ const defaults: CalculatorState = {
 };
 
 const weeksPerMonth = 4.33;
+const calendlyUrl =
+  "https://calendly.com/maddexternes-chairfill-demo/chairfill-front-desk-demo";
 
 const pricing: PricingPlan[] = [
   {
@@ -417,7 +419,9 @@ function CalculatorCard() {
       </p>
 
       <a
-        href="#book-call"
+        href={calendlyUrl}
+        target="_blank"
+        rel="noreferrer"
         className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-[#3B82F6] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#60A5FA]"
       >
         Book Revenue Audit
@@ -461,7 +465,9 @@ export function CalculatorFirstLanding() {
               See Demo
             </a>
             <a
-              href="#book-call"
+              href={calendlyUrl}
+              target="_blank"
+              rel="noreferrer"
               className="rounded-full bg-[#3B82F6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#60A5FA]"
             >
               Book Call
@@ -679,7 +685,9 @@ export function CalculatorFirstLanding() {
             follow-up process. You will know if ChairFill can pay for itself.
           </p>
           <a
-            href="/book-meeting"
+            href={calendlyUrl}
+            target="_blank"
+            rel="noreferrer"
             className="mt-8 inline-flex items-center justify-center rounded-full bg-[#3B82F6] px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-[#60A5FA]"
           >
             Book a 15-Min HVAC Revenue Audit
