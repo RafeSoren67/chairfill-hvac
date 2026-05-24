@@ -12,6 +12,17 @@ type CalculatorState = {
   recoveryRate: number;
 };
 
+type PlanKey = "starter" | "growth" | "pro" | "multi";
+
+type PricingPlan = {
+  key: PlanKey;
+  tier: string;
+  price: string;
+  note: string;
+  bestFor: string;
+  highlighted?: boolean;
+};
+
 const defaults: CalculatorState = {
   missedCallsPerWeek: 12,
   opportunityRate: 60,
@@ -23,6 +34,38 @@ const defaults: CalculatorState = {
 };
 
 const weeksPerMonth = 4.33;
+
+const pricing: PricingPlan[] = [
+  {
+    key: "starter",
+    tier: "Starter",
+    price: "$997 setup + $757/mo",
+    note: "For single-location shops that need instant missed-call text-back and basic follow-up.",
+    bestFor: "Lower call volume, one location, and a simple missed-call recovery layer.",
+  },
+  {
+    key: "growth",
+    tier: "Growth",
+    price: "$1,497 setup + $997/mo",
+    note: "For HVAC companies with steady service-call volume and install opportunities.",
+    bestFor: "Most shops getting enough missed calls that one recovered install changes the math.",
+    highlighted: true,
+  },
+  {
+    key: "pro",
+    tier: "Pro",
+    price: "$1,997 setup + $1,497/mo",
+    note: "For teams that need stronger follow-up, quote recovery, review requests, and reporting.",
+    bestFor: "Busy seasonal shops, active marketing spend, and higher-value replacement leads.",
+  },
+  {
+    key: "multi",
+    tier: "Multi-location",
+    price: "Custom",
+    note: "For operators that need location routing, rollout support, and consolidated visibility.",
+    bestFor: "Multiple locations, dispatch complexity, or ownership groups.",
+  },
+];
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -40,6 +83,38 @@ function formatNumber(value: number) {
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
+}
+
+function getRecommendedPlan(
+  recoveredRevenuePerMonth: number,
+  missedCallsPerWeek: number,
+) {
+  let planKey: PlanKey = "growth";
+  let reason =
+    "Your numbers show enough missed-call leakage that a dedicated recovery workflow is likely worth testing.";
+
+  if (recoveredRevenuePerMonth < 7000 && missedCallsPerWeek < 10) {
+    planKey = "starter";
+    reason =
+      "Your volume looks meaningful but contained. Start with missed-call text-back and simple follow-up.";
+  } else if (recoveredRevenuePerMonth < 18000 && missedCallsPerWeek < 18) {
+    planKey = "growth";
+    reason =
+      "Your numbers point to steady service-call and install leakage. Growth is the cleanest fit for most HVAC shops here.";
+  } else if (recoveredRevenuePerMonth < 35000 && missedCallsPerWeek < 35) {
+    planKey = "pro";
+    reason =
+      "Your missed-call volume is high enough that quote recovery, review requests, and reporting should be part of the system.";
+  } else {
+    planKey = "multi";
+    reason =
+      "Your volume suggests a larger rollout with routing, reporting, and location-specific recovery workflows.";
+  }
+
+  return {
+    plan: pricing.find((item) => item.key === planKey) ?? pricing[1],
+    reason,
+  };
 }
 
 function SliderField({
@@ -164,6 +239,10 @@ function CalculatorCard() {
     const recoveredJobsPerMonth = opportunities * incrementalRecoveryRate;
     const recoveredRevenuePerMonth =
       monthlyOpportunityValue * incrementalRecoveryRate;
+    const recommendation = getRecommendedPlan(
+      recoveredRevenuePerMonth,
+      values.missedCallsPerWeek,
+    );
 
     return {
       monthlyRevenueLost,
@@ -171,6 +250,7 @@ function CalculatorCard() {
       recoveredJobsPerMonth,
       recoveredRevenuePerMonth,
       recoveredRevenuePerYear: recoveredRevenuePerMonth * 12,
+      recommendation,
     };
   }, [values]);
 
@@ -313,6 +393,25 @@ function CalculatorCard() {
         </p>
       </div>
 
+      <div className="mt-3 rounded-xl border border-[#3B82F6]/40 bg-[#3B82F6]/10 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#60A5FA]">
+              Recommended fit
+            </p>
+            <p className="mt-2 text-2xl font-semibold tracking-tight text-[#F3F4F6]">
+              {results.recommendation.plan.tier}
+            </p>
+          </div>
+          <span className="rounded-full bg-[#3B82F6] px-3 py-1 text-xs font-semibold text-white">
+            {results.recommendation.plan.price}
+          </span>
+        </div>
+        <p className="mt-3 text-sm leading-6 text-[#B4BCC8]">
+          {results.recommendation.reason}
+        </p>
+      </div>
+
       <p className="mt-5 text-sm font-semibold leading-6 text-[#F97316]">
         Even one missed install can cost more than ChairFill for an entire year.
       </p>
@@ -343,25 +442,6 @@ const timeline = [
   {
     title: "Booked appointment",
     text: "Your team sees a clean recovered lead instead of a dead voicemail.",
-  },
-];
-
-const pricing = [
-  {
-    tier: "Starter",
-    price: "$497 setup + $297/mo",
-    note: "For single-location shops that need missed-call text-back and follow-up.",
-  },
-  {
-    tier: "Growth",
-    price: "$1,997 setup + $997/mo",
-    note: "For HVAC companies with steady call volume and install opportunities.",
-    highlighted: true,
-  },
-  {
-    tier: "Multi-location",
-    price: "Custom",
-    note: "For teams that need location routing, reporting, and rollout support.",
   },
 ];
 
@@ -550,7 +630,7 @@ export function CalculatorFirstLanding() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          <div className="mt-10 grid gap-4 lg:grid-cols-4">
             {pricing.map((plan) => (
               <article
                 key={plan.tier}
@@ -563,11 +643,22 @@ export function CalculatorFirstLanding() {
                 <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#60A5FA]">
                   {plan.tier}
                 </p>
+                {plan.highlighted ? (
+                  <span className="mt-3 inline-flex rounded-full bg-[#3B82F6] px-3 py-1 text-xs font-semibold text-white">
+                    Most common fit
+                  </span>
+                ) : null}
                 <p className="mt-4 text-3xl font-semibold tracking-tight text-[#F3F4F6]">
                   {plan.price}
                 </p>
                 <p className="mt-4 text-sm leading-6 text-[#B4BCC8]">
                   {plan.note}
+                </p>
+                <p className="mt-5 border-t border-[#2B3442] pt-4 text-xs font-semibold uppercase tracking-[0.12em] text-[#64748B]">
+                  Best for
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[#B4BCC8]">
+                  {plan.bestFor}
                 </p>
               </article>
             ))}
